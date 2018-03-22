@@ -3,9 +3,11 @@ if(VCPKG_CMAKE_SYSTEM_NAME STREQUAL WindowsStore)
     message(FATAL_ERROR "Error: UWP builds are currently not supported.")
 endif()
 
-# Glib relies on DllMain
-if(VCPKG_LIBRARY_LINKAGE STREQUAL "static" OR VCPKG_CRT_LINKAGE STREQUAL "static")
-    message(FATAL_ERROR "Glib only supports dynamic library and crt linkage")
+# Glib relies on DllMain on Windows
+if(NOT VCPKG_CMAKE_SYSTEM_NAME)
+    if(VCPKG_LIBRARY_LINKAGE STREQUAL "static" OR VCPKG_CRT_LINKAGE STREQUAL "static")
+        message(FATAL_ERROR "Glib only supports dynamic library and crt linkage")
+    endif()
 endif()
 
 include(vcpkg_common_functions)
