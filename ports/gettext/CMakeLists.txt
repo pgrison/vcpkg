@@ -3,29 +3,31 @@ project(libintl C)
 
 find_package(unofficial-iconv REQUIRED)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/config . ${ICONV_PATH} ${CHARSET_PATH})
-link_libraries(${CHARSET_LIB} ${ICONV_LIB})
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/config .)
 
 set(CMAKE_STATIC_LIBRARY_PREFIX)
 set(CMAKE_SHARED_LIBRARY_PREFIX)
 
-set(HAVE_NEWLOCALE 1)
 if(WIN32)
     set(HAVE_POSIX_PRINTF 0)
     set(HAVE_SNPRINTF 0)
     set(HAVE_ASPRINTF 0)
     set(HAVE_WPRINTF 0)
+    set(HAVE_NEWLOCALE 0)
+
+    configure_file(intl/libgnuintl.win32.h config/libgnuintl.h COPYONLY)
+    configure_file(config.win32.h config/config.h COPYONLY)
 else()
     set(HAVE_POSIX_PRINTF 1)
     set(HAVE_SNPRINTF 1)
     set(HAVE_ASPRINTF 1)
     set(HAVE_WPRINTF 1)
+    set(HAVE_NEWLOCALE 1)
+    add_definitions(-DHAVE_NEWLOCALE=1)
+
+    configure_file(intl/libgnuintl.in.h config/libgnuintl.h @ONLY)
+    configure_file(config.win32.h config/config.h COPYONLY)
 endif()
-
-add_definitions(-DHAVE_NEWLOCALE=1)
-
-configure_file(intl/libgnuintl.in.h config/libgnuintl.h @ONLY)
-configure_file(config.win32.h config/config.h COPYONLY)
 
 if(NOT DISABLE_INSTALL_HEADERS)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/config/libgnuintl.h" DESTINATION include RENAME libintl.h)
@@ -38,35 +40,36 @@ endif()
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/config/config.h" "${_contents}")
 
 FILE(GLOB SOURCES
-    gettext.def
-"intl/bindtextdom.c"
-"intl/dcgettext.c"
-"intl/dcigettext.c"
-"intl/dcngettext.c"
-"intl/dgettext.c"
-"intl/dngettext.c"
-"intl/explodename.c"
-"intl/finddomain.c"
-"intl/gettext.c"
-"intl/hash-string.c"
-"intl/intl-compat.c"
-"intl/l10nflist.c"
-"intl/langprefs.c"
-"intl/loadmsgcat.c"
-"intl/localealias.c"
-"intl/localename.c"
-"intl/lock.c"
-"intl/log.c"
-"intl/ngettext.c"
-"intl/osdep.c"
-"intl/plural-exp.c"
-"intl/plural.c"
-"intl/printf.c"
-"intl/relocatable.c"
-"intl/textdomain.c"
-"intl/version.c"
-"intl/setlocale.c"
+    "intl/bindtextdom.c"
+    "intl/dcgettext.c"
+    "intl/dcigettext.c"
+    "intl/dcngettext.c"
+    "intl/dgettext.c"
+    "intl/dngettext.c"
+    "intl/explodename.c"
+    "intl/finddomain.c"
+    "intl/gettext.c"
+    "intl/hash-string.c"
+    "intl/intl-compat.c"
+    "intl/l10nflist.c"
+    "intl/langprefs.c"
+    "intl/loadmsgcat.c"
+    "intl/localealias.c"
+    "intl/localename.c"
+    "intl/lock.c"
+    "intl/log.c"
+    "intl/ngettext.c"
+    "intl/osdep.c"
+    "intl/plural-exp.c"
+    "intl/plural.c"
+    "intl/printf.c"
+    "intl/relocatable.c"
+    "intl/textdomain.c"
+    "intl/version.c"
 )
+if(NOT WIN32)
+    list(APPEND SOURCES "intl/setlocale.c")
+endif()
 
 set(LOCALDIR "c:/gettext")
 
